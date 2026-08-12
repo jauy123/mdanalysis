@@ -282,7 +282,7 @@ def from_ALPHAFOLD(id, cache_path=None, progressbar=False, file_format="cif"):
         )
 
     # Save JSON file to temporary directory.
-    # This also prevents StaticFetcher logging from occuring in the console
+    # This prevents StaticFetcher logging from occuring in the console
     with TemporaryDirectory() as tmp_dir_path:
         json_file, _ = urlretrieve(
             f"https://alphafold.ebi.ac.uk/api/prediction/{id}",
