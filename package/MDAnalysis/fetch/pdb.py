@@ -274,7 +274,7 @@ def from_ALPHAFOLD(id, cache_path=None, progressbar=False, file_format="cif"):
     .. versionadded:: 2.11.0
     """
 
-    if file_format not in _SUPPORTED_FILE_FORMATS_ALPHAFOLD.keys():
+    if file_format not in _SUPPORTED_FILE_FORMATS_ALPHAFOLD:
         raise ValueError(
             f"Invalid file format: {file_format}. "
             + "Supported formats are: "
