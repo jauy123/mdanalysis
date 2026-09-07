@@ -253,7 +253,7 @@ class StaticFetcher(_BaseFetcher):
         Notes
         -----
         The download directory can be overridden by setting the environment
-        variable ``MDANALYSIS_FETCHER_DATA`` to a valid path. This class uses
+        variable :envvar:`MDANALYSIS_FETCHER_DATA` to a valid path. This class uses
         :mod:`pooch` as a backend for downloading and caching files. The
         cache database is created on demand when ``db_name`` does not
         exist relative to :attr:`cache_path`.
