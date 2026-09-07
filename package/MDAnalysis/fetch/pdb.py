@@ -261,11 +261,11 @@ def from_Alphafold(id, cache_path=None, progressbar=False, file_format="cif"):
 
     Download a single AlphaFold file and convert it to a universe:
 
-    >>> mda.Universe(from_Alphafold("Q9I1F6"), files_format="pdb")
+    >>> mda.Universe(from_Alphafold("Q9I1F6"), file_format="pdb")
     <Universe with 2608 atoms>
 
-
     .. versionadded:: 2.11.0
+    
     """
 
     if file_format not in _SUPPORTED_FILE_FORMATS_ALPHAFOLD:
