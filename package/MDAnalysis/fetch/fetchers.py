@@ -265,10 +265,10 @@ class StaticFetcher(_BaseFetcher):
         # _BaseFetcher.fetch() arguments.
         kwargs = self._validate_fetch_args(kwargs)
 
-        LOAD_FROM_CACHE = False
-        CREATE_DATABASE = False
-        MISSING_FILES = False
-        APPEND_DATABASE = append_db
+        load_from_cache = False
+        create_database = False
+        missing_files = False
+        append_database = append_db
 
         registry_dictionary = {}
 
@@ -283,25 +283,25 @@ class StaticFetcher(_BaseFetcher):
             db_path = self.cache_path / Path(db_name)
 
             if db_path.exists():
-                LOAD_FROM_CACHE = True
+                load_from_cache = True
             else:
-                CREATE_DATABASE = True
+                create_database = True
 
-        if LOAD_FROM_CACHE:
+        if load_from_cache:
             registry_dictionary = self.read_registry(db_path)
             missing_files_list = self.check_registry(
                 db_path, files=list(requested_files)
             )
 
             if len(missing_files_list) != 0:
-                MISSING_FILES = True
+                missing_files = True
 
         # Ensures that StaticFetcher doesn't attempt to append
         # files outside of the registry.
         #
         # Unattended additions to registry is a security issue!
         # See 3.6 "File Integrity Checking" in NIST SP 800-115!
-        if MISSING_FILES and not APPEND_DATABASE:
+        if missing_files and not append_database:
             raise ValueError(
                 "fetch() is requesting files not found in the registry. "
                 + f"The missing files are {missing_files_list}. "
@@ -340,10 +340,10 @@ class StaticFetcher(_BaseFetcher):
         ]
 
         # Registry write code
-        if CREATE_DATABASE:
+        if create_database:
             self.write_registry(db_path, paths)
 
-        if APPEND_DATABASE and LOAD_FROM_CACHE:
+        if append_database and load_from_cache:
             self.append_registry(db_path, requested_files)
 
         return paths[0] if len(paths) == 1 else paths
