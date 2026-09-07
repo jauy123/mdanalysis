@@ -30,7 +30,7 @@ import pytest
 from MDAnalysis.fetch.fetchers import HAS_POOCH
 from MDAnalysis.fetch.pdb import (
     _SUPPORTED_FILE_FORMATS_ALPHAFOLD,
-    from_ALPHAFOLD,
+    from_Alphafold,
 )
 
 try:
@@ -59,7 +59,7 @@ except request.URLError:
     ],
 )
 def test_download_one_file_default_settings(tmp_path, id, expected_sha256):
-    p1 = from_ALPHAFOLD(
+    p1 = from_Alphafold(
         id=id,
         cache_path=tmp_path,
     )
@@ -78,7 +78,7 @@ def test_download_one_file_default_settings(tmp_path, id, expected_sha256):
 @pytest.mark.parametrize("file_format", ["bcif", "cif", "pdb"])
 def test_different_format(tmp_path, file_format):
 
-    p1 = from_ALPHAFOLD(
+    p1 = from_Alphafold(
         id="Q9I1F6", cache_path=tmp_path, file_format=file_format
     )
 
@@ -99,4 +99,4 @@ def test_invalid_format(tmp_path):
             + f"{list(_SUPPORTED_FILE_FORMATS_ALPHAFOLD.keys())}"
         ),
     ):
-        from_ALPHAFOLD(id="Q9I1F6", cache_path=tmp_path, file_format="boo")
+        from_Alphafold(id="Q9I1F6", cache_path=tmp_path, file_format="boo")

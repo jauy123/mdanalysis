@@ -184,13 +184,13 @@ def from_PDB(
     )
 
 
-def from_ALPHAFOLD(id, cache_path=None, progressbar=False, file_format="cif"):
+def from_Alphafold(id, cache_path=None, progressbar=False, file_format="cif"):
     """
     Download one or more AlphaFold structure files and cache them locally.
 
     Given one AlphaFold ID, downloads the corresponding structure file in the
     specified format and stores it in a local cache directory. If files are
-    cached on disk, *from_ALPHAFOLD* will skip the download and use the cached
+    cached on disk, *from_Alphafold* will skip the download and use the cached
     version instead.
 
     Returns the path(s) as a :class:`~pathlib.Path` to the downloaded file(s).
@@ -256,12 +256,12 @@ def from_ALPHAFOLD(id, cache_path=None, progressbar=False, file_format="cif"):
     --------
     Download a single AlphaFold file:
 
-    >>> from_ALPHAFOLD("Q9I1F6", file_format="cif")
+    >>> from_Alphafold("Q9I1F6", file_format="cif")
     './MDAnalysis_pdbs/AF-Q9I1F6-F1-model_v6.cif'
 
     Download a single AlphaFold file and convert it to a universe:
 
-    >>> mda.Universe(from_ALPHAFOLD("Q9I1F6"), files_format="pdb")
+    >>> mda.Universe(from_Alphafold("Q9I1F6"), files_format="pdb")
     <Universe with 2608 atoms>
 
 
