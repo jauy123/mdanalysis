@@ -265,7 +265,6 @@ def from_Alphafold(id, cache_path=None, progressbar=False, file_format="cif"):
     <Universe with 2608 atoms>
 
     .. versionadded:: 2.11.0
-    
     """
 
     if file_format not in _SUPPORTED_FILE_FORMATS_ALPHAFOLD:
