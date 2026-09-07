@@ -96,7 +96,6 @@ class _BaseFetcher(ABC):
     should inherit from it.
 
     .. versionadded:: 2.11.0
-
     """
 
     def __init__(
@@ -164,7 +163,6 @@ class StaticFetcher(_BaseFetcher):
     :mod:`pooch` as a backend for downloading and caching files.
 
     .. versionadded:: 2.11.0
-
     """
 
     def __init__(self, cache_path=None, hash="sha256"):
@@ -259,7 +257,6 @@ class StaticFetcher(_BaseFetcher):
         exist relative to :attr:`cache_path`.
 
         .. versionadded:: 2.11.0
-
         """
         # Keywords arguments that are reserved for common
         # _BaseFetcher.fetch() arguments.
@@ -404,7 +401,6 @@ class StaticFetcher(_BaseFetcher):
             <filename> <hash_algorithm>:<digest>
 
         .. versionadded:: 2.11.0
-
         """
         new_files = (self.cache_path / file_name for file_name in files)
 
@@ -549,7 +545,6 @@ class StaticFetcher(_BaseFetcher):
             <filename> <hash_algorithm>:<digest>
 
         .. versionadded:: 2.11.0
-
         """
         hash_dict = {}
 
@@ -619,7 +614,6 @@ class StaticFetcher(_BaseFetcher):
             <filename> <hash_algorithm>:<digest>
 
         .. versionadded:: 2.11.0
-
         """
         with open(db_path, mode=mode) as f:
             for file in files:
