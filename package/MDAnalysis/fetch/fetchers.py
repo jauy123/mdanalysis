@@ -26,11 +26,15 @@ Fetchers --- :mod:`MDAnalysis.fetch.fetchers`
 =============================================
 
 This module contains Fetcher classes which are able to retrieve files from
-remote servers.These classes use the third-party library :mod:`pooch` as
+remote servers. These classes use the third-party library :mod:`pooch` as
 a dependency.
 
 Classes
 -------
+
+.. autoclass:: _BaseFetcher
+    :members:
+    :inherited-members:
 
 .. autoclass:: StaticFetcher
     :members:
@@ -63,6 +67,7 @@ except ImportError:
 else:
     HAS_POOCH = True
 
+# Module-level variables
 
 #: Name of the :mod:`pooch` cache directory
 #: ``pooch.os_cache(DEFAULT_CACHE_NAME_DOWNLOADER)``;
@@ -185,7 +190,7 @@ class StaticFetcher(_BaseFetcher):
 
         Primarily designed to be working with `FAIR`_
         databases, this method works by sending a request to a web server and
-        caching them to a registry.The registry is in the format of a
+        caching them to a registry. The registry is in the format of a
         `pooch registry file`_, and it will be created or read relative to
         :attr:`cache_path`.
 
@@ -236,19 +241,19 @@ class StaticFetcher(_BaseFetcher):
             Download a single CIF file from the RCSB Protein Data Bank.
 
             >>> StaticFetcher().fetch(file_name="1AKE.cif",
-                base_url="https://files.wwpdb.org/download/")
+            ...     base_url="https://files.wwpdb.org/download/")
             './MDAnalysis_pdbs/1AKE.cif'
 
             Download multiple CIF files from the RCSB Protein Data Bank.
 
             >>> StaticFetcher().fetch(file_name=["1AKE.cif", "4AKE.cif"],
-                base_url="https://files.wwpdb.org/download/")
+            ...     base_url="https://files.wwpdb.org/download/")
             ['./MDAnalysis_pdbs/1AKE.cif', './MDAnalysis_pdbs/4AKE.cif']
 
         Notes
         -----
         The download directory can be overridden by setting the environment
-        variable ``MDANALYSIS_FETCHER_DATA`` to a valid path. This class uses
+        variable :envvar:`MDANALYSIS_FETCHER_DATA` to a valid path. This class uses
         :mod:`pooch` as a backend for downloading and caching files. The
         cache database is created on demand when ``db_name`` does not
         exist relative to :attr:`cache_path`.
@@ -260,14 +265,15 @@ class StaticFetcher(_BaseFetcher):
         # _BaseFetcher.fetch() arguments.
         kwargs = self._validate_fetch_args(kwargs)
 
-        LOAD_FROM_CACHE = False
-        CREATE_DATABASE = False
-        MISSING_FILES = False
-        APPEND_DATABASE = append_db
+        load_from_cache = False
+        create_database = False
+        missing_files = False
+        append_database = append_db
 
         registry_dictionary = {}
 
-        # Process file names
+        # Cast single string to tuple for uniform processing
+        # of single and multiple files
         requested_files = (
             (file_name,) if isinstance(file_name, str) else tuple(file_name)
         )
@@ -277,20 +283,25 @@ class StaticFetcher(_BaseFetcher):
             db_path = self.cache_path / Path(db_name)
 
             if db_path.exists():
-                LOAD_FROM_CACHE = True
+                load_from_cache = True
             else:
-                CREATE_DATABASE = True
+                create_database = True
 
-        if LOAD_FROM_CACHE:
+        if load_from_cache:
             registry_dictionary = self.read_registry(db_path)
             missing_files_list = self.check_registry(
                 db_path, files=list(requested_files)
             )
 
             if len(missing_files_list) != 0:
-                MISSING_FILES = True
+                missing_files = True
 
-        if MISSING_FILES and not APPEND_DATABASE:
+        # Ensures that StaticFetcher doesn't attempt to append
+        # files outside of the registry.
+        #
+        # Unattended additions to registry is a security issue!
+        # See 3.6 "File Integrity Checking" in NIST SP 800-115!
+        if missing_files and not append_database:
             raise ValueError(
                 "fetch() is requesting files not found in the registry. "
                 + f"The missing files are {missing_files_list}. "
@@ -298,10 +309,10 @@ class StaticFetcher(_BaseFetcher):
                 + "registry."
             )
 
+        # This allows files not in the registry to
+        # be downloadable.
         for name in requested_files:
             registry_dictionary.setdefault(name, None)
-
-        ##
 
         # Download code using pooch
         main_downloader = pooch.create(
@@ -328,16 +339,12 @@ class StaticFetcher(_BaseFetcher):
             for file_name in requested_files
         ]
 
-        ##
-
         # Registry write code
-        if CREATE_DATABASE:
+        if create_database:
             self.write_registry(db_path, paths)
 
-        if APPEND_DATABASE and LOAD_FROM_CACHE:
+        if append_database and load_from_cache:
             self.append_registry(db_path, requested_files)
-
-        ##
 
         return paths[0] if len(paths) == 1 else paths
 
@@ -399,14 +406,15 @@ class StaticFetcher(_BaseFetcher):
         .. versionadded:: 2.11.0
 
         """
-        new_files = [self.cache_path / file_name for file_name in files]
+        new_files = (self.cache_path / file_name for file_name in files)
 
+        # Prevent duplicate entries in the registry (Default behavior)
         if not write_duplicate:
             files_dict = self.read_registry(db_path)
 
-            _new_files = [
+            _new_files = (
                 file for file in new_files if file.name not in files_dict
-            ]
+            )
 
         else:
             _new_files = new_files
@@ -474,9 +482,12 @@ class StaticFetcher(_BaseFetcher):
         files = [] if files is None else files
         ignore = [] if ignore is None else ignore
 
+        # Grabs all files in the registry
         registry_dictionary = self.read_registry(db_path)
         database_files = set(registry_dictionary.keys())
 
+        # Grabs all files in the cache directory,
+        # excluding the registry file itself
         cache_files = [
             path
             for path in self.cache_path.rglob("*")
@@ -544,6 +555,11 @@ class StaticFetcher(_BaseFetcher):
 
         with open(db_path, mode="r") as f:
             for line in f:
+
+                # Pooch registry files can contain comments
+                if line.lstrip()[0] == "#":
+                    continue
+
                 key, value = line.strip().split()
                 hash_dict[key] = value
 
@@ -611,7 +627,7 @@ class StaticFetcher(_BaseFetcher):
                 digest = pooch.file_hash(file, alg=self.hash)
                 f.write(f"{file.name} {self.hash}:{digest}\n")
 
-    # Argument validation methods
+    # Argument private validation methods
     def _check_cache_path_input(self, cache_path):
 
         if cache_path is None:
