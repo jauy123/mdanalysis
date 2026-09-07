@@ -416,7 +416,7 @@ class StaticFetcher(_BaseFetcher):
                 file for file in new_files if file.name not in files_dict
             )
 
-        else:  #
+        else:
             _new_files = new_files
 
         self.write_registry(Path(db_path), _new_files, mode="a")
